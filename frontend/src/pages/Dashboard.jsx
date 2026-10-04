@@ -3,104 +3,60 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+  });
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans pb-10">
-      {/* Navigation Bar */}
-      <nav className="bg-white border-b px-6 py-3 flex items-center justify-between text-sm shadow-sm">
-        <div className="flex items-center font-bold text-green-700 text-lg">
-          🌿 EcoTrack <span className="ml-2 text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">Demo</span>
+    <div className="dashboard-page">
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">OVERVIEW</p>
+          <h1>Good morning, Eco User</h1>
+          <p className="heading-subtitle">A little progress goes a long way. Here’s your impact today.</p>
         </div>
-        <div className="flex space-x-6 text-gray-600 font-medium">
-          <button className="text-green-700 bg-green-50 px-3 py-1 rounded-md flex items-center">🏠 Dashboard</button>
-          <button onClick={() => navigate('/log')} className="hover:text-green-600 flex items-center">✏️ Log Today</button>
-          <button onClick={() => navigate('/history')} className="hover:text-green-600 flex items-center">📈 History</button>
-          <button onClick={() => navigate('/suggestions')} className="hover:text-green-600 flex items-center">💡 Suggestions</button>
-          <button onClick={() => navigate('/achievements')} className="hover:text-green-600 flex items-center">🏅 Achievements</button>
-          <button onClick={() => navigate('/profile')} className="hover:text-green-600 flex items-center">⚙️ Profile</button>
-        </div>
-        <div className="flex items-center space-x-4 text-gray-500">
-          <span>demo@ecotrack.app</span>
-          <button className="text-red-500 hover:text-red-600 font-medium" onClick={() => navigate('/login')}>Sign out</button>
-        </div>
-      </nav>
-
-      {/* Main Content Area */}
-      <div className="max-w-5xl mx-auto p-6 mt-4">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-gray-800">Welcome back, Eco User 👋</h1>
-          <p className="text-gray-500 text-sm mt-1">Monday, 25 May 2026</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* Carbon Gauge Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center justify-center">
-            <h2 className="text-gray-700 font-medium mb-6">Today's Footprint</h2>
-            <div className="relative w-48 h-48 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="#f3f4f6" strokeWidth="8" fill="none" />
-                <circle cx="50" cy="50" r="40" stroke="#22c55e" strokeWidth="8" fill="none" strokeDasharray="250" strokeDashoffset="250" className="transition-all duration-1000" />
-              </svg>
-              <div className="absolute text-center">
-                <div className="text-4xl font-bold text-green-500">0.0</div>
-                <div className="text-xs text-gray-400 mt-1">kg CO₂</div>
-                <div className="text-xs text-gray-400">of 8.0 target</div>
-              </div>
-            </div>
-            <div className="text-green-500 font-medium text-sm mt-6">8.0 kg remaining</div>
-            <div className="w-full flex justify-between text-xs text-gray-400 mt-4 px-4">
-              <span>0 kg</span>
-              <span>8 kg budget</span>
-            </div>
-          </div>
-
-          {/* Habit Mini Cards */}
-          <div className="flex flex-col gap-4 justify-center">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
-              <div className="flex items-center"><span className="text-2xl mr-4">🚗</span><span className="font-medium text-gray-700">Travel</span></div>
-              <span className="font-bold text-gray-800 text-lg">0.00 kg</span>
-            </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
-              <div className="flex items-center"><span className="text-2xl mr-4">🍽️</span><span className="font-medium text-gray-700">Food</span></div>
-              <span className="font-bold text-gray-800 text-lg">0.00 kg</span>
-            </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
-              <div className="flex items-center"><span className="text-2xl mr-4">⚡</span><span className="font-medium text-gray-700">Energy</span></div>
-              <span className="font-bold text-gray-800 text-lg">0.00 kg</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="bg-white text-center py-4 rounded-xl shadow-sm border border-gray-100 mb-6 font-medium text-gray-700 text-sm">
-          No log yet today. Start tracking your habits! 🏋️
-        </div>
-
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <button onClick={() => navigate('/log')} className="bg-green-700 text-white rounded-xl p-4 font-medium hover:bg-green-800 transition shadow-sm">
-            ✏️ Log Today
-          </button>
-          <button onClick={() => navigate('/suggestions')} className="bg-green-50 text-green-800 rounded-xl p-4 font-medium border border-green-100 hover:bg-green-100 transition shadow-sm">
-            💡 Suggestions
-          </button>
-          <button onClick={() => navigate('/history')} className="bg-green-50 text-green-800 rounded-xl p-4 font-medium border border-green-100 hover:bg-green-100 transition shadow-sm">
-            📈 History
-          </button>
-          <button onClick={() => navigate('/achievements')} className="bg-green-50 text-green-800 rounded-xl p-4 font-medium border border-green-100 hover:bg-green-100 transition shadow-sm">
-            🏅 Achievements
-          </button>
-        </div>
-
-        {/* Start Logging Prompt */}
-        <div className="bg-green-50 rounded-2xl p-10 text-center border border-green-100 border-dashed">
-          <div className="text-4xl mb-3">📝</div>
-          <h3 className="font-bold text-gray-800 text-lg mb-1">No habits logged today</h3>
-          <p className="text-sm text-gray-500 mb-6">Track your travel, food, and energy to see your carbon footprint.</p>
-          <button onClick={() => navigate('/log')} className="bg-green-700 text-white px-8 py-3 rounded-lg font-medium hover:bg-green-800 transition shadow-sm">
-            Start Logging →
-          </button>
-        </div>
+        <div className="date-stamp"><span className="date-dot" />{today}</div>
       </div>
+
+      <section className="dashboard-grid" aria-label="Today's carbon footprint">
+        <div className="footprint-panel">
+          <div className="panel-heading">
+            <div><span className="panel-kicker">YOUR DAILY IMPACT</span><h2>Carbon footprint</h2></div>
+            <span className="period-tag">Today</span>
+          </div>
+          <div className="footprint-content">
+            <div className="footprint-number">0.0 <span>kg CO₂e</span></div>
+            <p className="footprint-note">You haven’t logged any activity yet.</p>
+            <div className="budget-track"><span /></div>
+            <div className="budget-labels"><span>0 kg used</span><span>8 kg daily budget</span></div>
+            <button className="primary-action" onClick={() => navigate('/log')}><span>+</span> Log today’s activity</button>
+          </div>
+          <div className="panel-orbit orbit-one" /><div className="panel-orbit orbit-two" />
+        </div>
+
+        <div className="breakdown-panel">
+          <div className="panel-heading">
+            <div><span className="panel-kicker">WHERE IT COMES FROM</span><h2>Daily breakdown</h2></div>
+            <span className="breakdown-total">0.00 <small>kg</small></span>
+          </div>
+          <div className="category-list">
+            <div className="category-row"><span className="category-icon travel-icon">↗</span><div className="category-info"><div><strong>Travel</strong><span>0.00 kg</span></div><div className="category-track"><i className="travel-bar" /></div></div></div>
+            <div className="category-row"><span className="category-icon food-icon">◒</span><div className="category-info"><div><strong>Food</strong><span>0.00 kg</span></div><div className="category-track"><i className="food-bar" /></div></div></div>
+            <div className="category-row"><span className="category-icon energy-icon">ϟ</span><div className="category-info"><div><strong>Home energy</strong><span>0.00 kg</span></div><div className="category-track"><i className="energy-bar" /></div></div></div>
+          </div>
+          <button className="text-action" onClick={() => navigate('/history')}>View your history <span>→</span></button>
+        </div>
+      </section>
+
+      <section className="next-step-panel">
+        <div className="next-step-copy"><span className="next-step-mark">✳</span><div><span className="panel-kicker">YOUR NEXT STEP</span><h2>Start with one small thing</h2><p>Log your travel, meals, and home energy to see your personal footprint.</p></div></div>
+        <button className="secondary-action" onClick={() => navigate('/log')}>Start logging <span>→</span></button>
+      </section>
+
+      <section className="bottom-grid">
+        <div className="small-panel"><div className="small-panel-title"><span>✦</span><h2>A greener idea</h2></div><p>Try swapping one short car trip for a walk, bike ride, or public transit journey.</p><button onClick={() => navigate('/suggestions')}>Explore suggestions <span>→</span></button></div>
+        <div className="small-panel streak-panel"><div className="small-panel-title"><span>◷</span><h2>Your tracking rhythm</h2></div><p>Build a clearer picture of your impact by logging a little each day.</p><div className="week-dots" aria-label="No days logged this week"><span /><span /><span /><span /><span /><span /><span /></div><div className="week-labels"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div></div>
+      </section>
     </div>
   );
 };

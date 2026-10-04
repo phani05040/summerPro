@@ -10,7 +10,7 @@ const LogToday = () => {
   // State to hold all form data
   const [formData, setFormData] = useState({
     user_id: 'demo_user_123', // Demo ID
-    date: new Date().toISOString().split('T'),
+    date: new Date().toISOString().split('T')[0],
     transport_mode: 'Car Petrol',
     distance: 0,
     passengers: 1,
@@ -50,20 +50,13 @@ const LogToday = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans pb-10">
-      {/* Simple Header */}
-      <nav className="bg-white border-b px-6 py-3 flex items-center justify-between text-sm shadow-sm">
-        <div className="flex items-center font-bold text-green-700 text-lg cursor-pointer" onClick={() => navigate('/')}>
-          🌿 EcoTrack
-        </div>
-        <button className="text-gray-500 hover:text-green-600 font-medium" onClick={() => navigate('/')}>← Back to Dashboard</button>
-      </nav>
-
-      <div className="max-w-2xl mx-auto p-6 mt-8">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">Log Today's Habits</h1>
-          <p className="text-gray-500 text-sm mt-1">{formData.date}</p>
-        </div>
+    <div className="log-page">
+      <div className="page-heading log-heading">
+        <div><p className="eyebrow">DAILY CHECK-IN</p><h1>Log today’s activity</h1><p className="heading-subtitle">A few details help us estimate your daily footprint.</p></div>
+        <button className="back-link" onClick={() => navigate('/')}>← Overview</button>
+      </div>
+      <div className="log-content">
+        <div className="log-date">{formData.date}</div>
 
         {/* 3-Step Progress Tracker */}
         <div className="flex justify-center mb-8 space-x-4 text-sm font-medium">
@@ -89,8 +82,8 @@ const LogToday = () => {
               <h2 className="text-lg font-bold text-gray-800 flex items-center">🚗 Travel</h2>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mode of Transport</label>
-                <select name="transport_mode" value={formData.transport_mode} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500">
+                <label htmlFor="transport_mode" className="block text-sm font-medium text-gray-700 mb-2">Mode of Transport</label>
+                <select id="transport_mode" name="transport_mode" value={formData.transport_mode} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500">
                   <option value="Car Petrol">🚗 Car (Petrol)</option>
                   <option value="Car Diesel">🚗 Car (Diesel)</option>
                   <option value="Car Electric">⚡ Car (Electric)</option>
@@ -102,8 +95,8 @@ const LogToday = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Distance Traveled (km)</label>
-                <input type="number" name="distance" value={formData.distance} onChange={handleChange} min="0" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500" />
+                <label htmlFor="distance" className="block text-sm font-medium text-gray-700 mb-2">Distance Traveled (km)</label>
+                <input id="distance" type="number" name="distance" value={formData.distance} onChange={handleChange} min="0" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500" />
               </div>
 
               <div className="bg-green-50 text-green-700 p-4 rounded-lg text-sm font-medium">
@@ -122,8 +115,8 @@ const LogToday = () => {
               <h2 className="text-lg font-bold text-gray-800 flex items-center">🍽️ Food</h2>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Diet Type Today</label>
-                <select name="diet_type" value={formData.diet_type} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500">
+                <label htmlFor="diet_type" className="block text-sm font-medium text-gray-700 mb-2">Diet Type Today</label>
+                <select id="diet_type" name="diet_type" value={formData.diet_type} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500">
                   <option value="Meat-heavy">🥩 Meat-heavy</option>
                   <option value="Omnivore">🍗 Omnivore</option>
                   <option value="Vegetarian">🥗 Vegetarian</option>
@@ -132,8 +125,8 @@ const LogToday = () => {
               </div>
 
               <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <input type="checkbox" name="food_waste" checked={formData.food_waste} onChange={handleChange} className="w-5 h-5 text-green-600 rounded" />
-                <label className="text-sm font-medium text-gray-700">I wasted food today (+10% penalty)</label>
+                <input id="food_waste" type="checkbox" name="food_waste" checked={formData.food_waste} onChange={handleChange} className="w-5 h-5 text-green-600 rounded" />
+                <label htmlFor="food_waste" className="text-sm font-medium text-gray-700">I wasted food today (+10% penalty)</label>
               </div>
 
               <div className="flex space-x-4 mt-6">
@@ -153,13 +146,13 @@ const LogToday = () => {
               <h2 className="text-lg font-bold text-gray-800 flex items-center">⚡ Energy</h2>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Electricity Used (kWh)</label>
-                <input type="number" name="electricity_kwh" value={formData.electricity_kwh} onChange={handleChange} min="0" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500" />
+                <label htmlFor="electricity_kwh" className="block text-sm font-medium text-gray-700 mb-2">Electricity Used (kWh)</label>
+                <input id="electricity_kwh" type="number" name="electricity_kwh" value={formData.electricity_kwh} onChange={handleChange} min="0" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500" />
               </div>
 
               <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <input type="checkbox" name="ac" checked={formData.ac} onChange={handleChange} className="w-5 h-5 text-green-600 rounded" />
-                <label className="text-sm font-medium text-gray-700">Used Air Conditioning (AC)</label>
+                <input id="ac" type="checkbox" name="ac" checked={formData.ac} onChange={handleChange} className="w-5 h-5 text-green-600 rounded" />
+                <label htmlFor="ac" className="text-sm font-medium text-gray-700">Used Air Conditioning (AC)</label>
               </div>
 
               <div className="flex space-x-4 mt-6">

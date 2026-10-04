@@ -25,21 +25,13 @@ const Suggestions = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans pb-10">
-      {/* Navigation Header */}
-      <nav className="bg-white border-b px-6 py-3 flex items-center justify-between text-sm shadow-sm">
-        <div className="flex items-center font-bold text-green-700 text-lg cursor-pointer" onClick={() => navigate('/')}>
-          🌿 EcoTrack
-        </div>
-        <button className="bg-green-700 text-white px-4 py-1.5 rounded-md font-medium" onClick={() => navigate('/')}>
-          🏠 Back to Dashboard
-        </button>
-      </nav>
-
-      <div className="max-w-3xl mx-auto p-6 mt-6">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 flex justify-center items-center">💡 Eco-Friendly Suggestions</h1>
-          <p className="text-gray-500 text-sm mt-2">Personalised tips to reduce your carbon footprint</p>
+    <div className="suggestions-page">
+      <div className="page-heading">
+        <div><p className="eyebrow">PERSONAL IDEAS</p><h1>Suggestions</h1><p className="heading-subtitle">Practical ways to make your everyday routine lighter.</p></div>
+        <button className="back-link" onClick={() => navigate('/')}>← Overview</button>
+      </div>
+      <div className="suggestions-content">
+        <div className="suggestions-intro">
           <div className="mt-3 inline-block bg-pink-50 text-pink-600 text-xs font-bold px-3 py-1 rounded-full border border-pink-100">
             ✨ AI-powered by Groq (LLaMA 3.3 70B)
           </div>
