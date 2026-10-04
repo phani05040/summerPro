@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import React from 'react';
 
-// You will need to create these components in your src/pages/ folder later
-const Login = () => <div>Login Page (Firebase Auth)</div>;
-const Dashboard = () => <div>Dashboard Gauge Page</div>;
-const LogToday = () => <div>3-Step Habit Logger Page</div>;
+// Import all your completed pages
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import LogToday from './pages/LogToday';
+import Suggestions from './pages/Suggestions';
+
+// Placeholders for the final three pages
 const History = () => <div>History & Trends Charts Page</div>;
-const Suggestions = () => <div>AI Suggestions Page</div>;
 const Achievements = () => <div>Badges Page</div>;
 const Profile = () => <div>Settings Page</div>;
 
@@ -18,8 +20,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="/log" element={<LogToday />} />
-          <Route path="/history" element={<History />} />
           <Route path="/suggestions" element={<Suggestions />} />
+          <Route path="/history" element={<History />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>

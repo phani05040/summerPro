@@ -1,0 +1,182 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../api'; // Imports the Axios calls we made earlier
+
+const LogToday = () => {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  
+  // State to hold all form data
+  const [formData, setFormData] = useState({
+    user_id: 'demo_user_123', // Demo ID
+    date: new Date().toISOString().split('T'),
+    transport_mode: 'Car Petrol',
+    distance: 0,
+    passengers: 1,
+    diet_type: 'Omnivore',
+    food_waste: false,
+    electricity_kwh: 0,
+    heating: false,
+    ac: false
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  // Final submission to the Flask backend
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      // 1. Calculate the footprint via Flask
+      const calcResponse = await api.calculateFootprint(formData);
+      const totalEmissions = calcResponse.data.total;
+
+      // 2. Log the habit to Firebase (via Flask)
+      await api.logHabit({ ...formData, total_emissions: totalEmissions });
+
+      // 3. Move to Suggestions automatically
+      navigate('/suggestions');
+    } catch (error) {
+      console.error("Error logging habits:", error);
+      alert("Failed to connect to the backend. Is your Flask server running?");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans pb-10">
+      {/* Simple Header */}
+      <nav className="bg-white border-b px-6 py-3 flex items-center justify-between text-sm shadow-sm">
+        <div className="flex items-center font-bold text-green-700 text-lg cursor-pointer" onClick={() => navigate('/')}>
+          🌿 EcoTrack
+        </div>
+        <button className="text-gray-500 hover:text-green-600 font-medium" onClick={() => navigate('/')}>← Back to Dashboard</button>
+      </nav>
+
+      <div className="max-w-2xl mx-auto p-6 mt-8">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-800">Log Today's Habits</h1>
+          <p className="text-gray-500 text-sm mt-1">{formData.date}</p>
+        </div>
+
+        {/* 3-Step Progress Tracker */}
+        <div className="flex justify-center mb-8 space-x-4 text-sm font-medium">
+          <div className={`px-4 py-2 rounded-full flex items-center ${step === 1 ? 'bg-green-700 text-white' : 'bg-white text-gray-400 border'}`}>
+            🚗 Travel
+          </div>
+          <div className="text-gray-300 mt-2">—</div>
+          <div className={`px-4 py-2 rounded-full flex items-center ${step === 2 ? 'bg-green-700 text-white' : 'bg-white text-gray-400 border'}`}>
+            🍽️ Food
+          </div>
+          <div className="text-gray-300 mt-2">—</div>
+          <div className={`px-4 py-2 rounded-full flex items-center ${step === 3 ? 'bg-green-700 text-white' : 'bg-white text-gray-400 border'}`}>
+            ⚡ Energy
+          </div>
+        </div>
+
+        {/* Form Container */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          
+          {/* STEP 1: TRAVEL */}
+          {step === 1 && (
+            <div className="space-y-6 animate-fade-in">
+              <h2 className="text-lg font-bold text-gray-800 flex items-center">🚗 Travel</h2>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mode of Transport</label>
+                <select name="transport_mode" value={formData.transport_mode} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500">
+                  <option value="Car Petrol">🚗 Car (Petrol)</option>
+                  <option value="Car Diesel">🚗 Car (Diesel)</option>
+                  <option value="Car Electric">⚡ Car (Electric)</option>
+                  <option value="Bus">🚌 Bus</option>
+                  <option value="Train">🚆 Train</option>
+                  <option value="Bicycle">🚲 Bicycle</option>
+                  <option value="Walking">🚶 Walking</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Distance Traveled (km)</label>
+                <input type="number" name="distance" value={formData.distance} onChange={handleChange} min="0" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500" />
+              </div>
+
+              <div className="bg-green-50 text-green-700 p-4 rounded-lg text-sm font-medium">
+                Estimated: ~{((formData.distance || 0) * 0.192).toFixed(2)} kg CO₂
+              </div>
+
+              <button onClick={() => setStep(2)} className="w-full bg-green-700 text-white font-bold py-3 rounded-xl hover:bg-green-800 transition shadow-sm mt-4">
+                Next: Food →
+              </button>
+            </div>
+          )}
+
+          {/* STEP 2: FOOD */}
+          {step === 2 && (
+            <div className="space-y-6 animate-fade-in">
+              <h2 className="text-lg font-bold text-gray-800 flex items-center">🍽️ Food</h2>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Diet Type Today</label>
+                <select name="diet_type" value={formData.diet_type} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500">
+                  <option value="Meat-heavy">🥩 Meat-heavy</option>
+                  <option value="Omnivore">🍗 Omnivore</option>
+                  <option value="Vegetarian">🥗 Vegetarian</option>
+                  <option value="Vegan">🌱 Vegan</option>
+                </select>
+              </div>
+
+              <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <input type="checkbox" name="food_waste" checked={formData.food_waste} onChange={handleChange} className="w-5 h-5 text-green-600 rounded" />
+                <label className="text-sm font-medium text-gray-700">I wasted food today (+10% penalty)</label>
+              </div>
+
+              <div className="flex space-x-4 mt-6">
+                <button onClick={() => setStep(1)} className="w-1/3 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition">
+                  ← Back
+                </button>
+                <button onClick={() => setStep(3)} className="w-2/3 bg-green-700 text-white font-bold py-3 rounded-xl hover:bg-green-800 transition shadow-sm">
+                  Next: Energy →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: ENERGY */}
+          {step === 3 && (
+            <div className="space-y-6 animate-fade-in">
+              <h2 className="text-lg font-bold text-gray-800 flex items-center">⚡ Energy</h2>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Electricity Used (kWh)</label>
+                <input type="number" name="electricity_kwh" value={formData.electricity_kwh} onChange={handleChange} min="0" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500" />
+              </div>
+
+              <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <input type="checkbox" name="ac" checked={formData.ac} onChange={handleChange} className="w-5 h-5 text-green-600 rounded" />
+                <label className="text-sm font-medium text-gray-700">Used Air Conditioning (AC)</label>
+              </div>
+
+              <div className="flex space-x-4 mt-6">
+                <button onClick={() => setStep(2)} className="w-1/3 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition">
+                  ← Back
+                </button>
+                <button onClick={handleSubmit} disabled={loading} className="w-2/3 bg-green-700 text-white font-bold py-3 rounded-xl hover:bg-green-800 transition shadow-sm disabled:opacity-50">
+                  {loading ? 'Processing...' : 'Submit & Get AI Suggestions ✨'}
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LogToday;
