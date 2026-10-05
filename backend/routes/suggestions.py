@@ -5,12 +5,10 @@ from groq import Groq
 
 suggestions_bp = Blueprint('suggestions', __name__)
 
-# Initialize Groq Client securely using environment variables
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 @suggestions_bp.route('/api/suggestions/generate', methods=['POST'])
 def generate_suggestions():
-    data = request.json
+    data = request.get_json(silent=True) or {}
     
     # Construct context prompt
     prompt = f"""
@@ -26,7 +24,10 @@ def generate_suggestions():
 
     try:
         # Submit request to Groq API
-        chat_completion = client.chat.completions.create(
+        api_key = os.environ.get("GROQ_API_KEY")
+        if not api_key:
+            raise RuntimeError("GROQ_API_KEY is not configured")
+        chat_completion = Groq(api_key=api_key).chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
             model="llama-3.3-70b-versatile",
             temperature=0.7,
@@ -34,9 +35,12 @@ def generate_suggestions():
         )
         
         # Parse returned JSON array
-        suggestions_json = chat_completion.choices.message.content
+        suggestions_json = chat_completion.choices[0].message.content
+        if suggestions_json.startswith("```"):
+            suggestions_json = suggestions_json.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
         suggestions = json.loads(suggestions_json)
-        
+        if not isinstance(suggestions, list):
+            raise ValueError("Suggestions must be an array")
         return jsonify(suggestions)
         
     except Exception as e:

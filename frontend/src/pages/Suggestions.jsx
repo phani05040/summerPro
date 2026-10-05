@@ -1,28 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 
-const Suggestions = () => {
+const Suggestions = ({ user }) => {
   const navigate = useNavigate();
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [searchParams] = useSearchParams();
+  const userId = user?.uid || 'demo_user_123';
 
   useEffect(() => {
     // Fetch suggestions automatically when page loads
     const fetchSuggestions = async () => {
       try {
-        // Simulating the payload you just logged
-        const payload = { travel_emissions: 2.5, food_emissions: 5.6, energy_emissions: 1.2, total: 9.3 };
+        const { data: entries } = await api.getHistory(userId, 365);
+        const selectedDate = searchParams.get('date');
+        const payload = entries.find((entry) => entry.date === selectedDate)
+          || entries[0]
+          || { travel_emissions: 0, food_emissions: 0, energy_emissions: 0, total_emissions: 0 };
+        payload.total = payload.total_emissions ?? payload.total ?? 0;
         const response = await api.generateSuggestions(payload);
-        setSuggestions(response.data);
+        setSuggestions(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Error fetching suggestions:", error);
+        setError(error.response?.data?.error || 'Could not load suggestions. Start the backend and try again.');
       } finally {
         setLoading(false);
       }
     };
     fetchSuggestions();
-  }, []);
+  }, [userId, searchParams]);
 
   return (
     <div className="suggestions-page">
@@ -43,6 +51,7 @@ const Suggestions = () => {
           </div>
         ) : (
           <div className="space-y-4">
+            {error && <p role="alert" className="text-sm text-amber-700">{error} Showing general ideas below.</p>}
             {suggestions.map((sug, idx) => (
               <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-start">
                 <div className="text-3xl mr-4 bg-gray-50 p-3 rounded-full">

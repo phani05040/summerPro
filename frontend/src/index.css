@@ -49,7 +49,7 @@ button { cursor: pointer; }
 .account-copy { display: grid; gap: 2px; font-size: 11px; }
 .account-copy strong { font-size: 12px; }
 .account-copy small { color: var(--muted); }
-.account-more { margin-left: auto; color: var(--muted); font-weight: 700; }
+.account-more { margin-left: auto; padding: 4px; border: 0; background: none; color: var(--muted); font-weight: 700; }
 .main-column { min-height: 100vh; margin-left: 244px; }
 .topbar { display: flex; align-items: center; justify-content: space-between; height: 67px; padding: 0 44px; background: #fff; border-bottom: 1px solid var(--line); }
 .topbar-context { color: #78847b; font-size: 12px; }
@@ -127,6 +127,32 @@ button { cursor: pointer; }
 .back-link { padding: 8px 0; border: 0; background: none; color: #597460; font-size: 11px; font-weight: 700; }
 .log-content { max-width: 690px; margin: 0 auto; }
 .log-date { margin-bottom: 13px; color: #8b968e; font-size: 11px; text-align: right; }
+.log-date { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.log-date input { padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: white; }
+.week-dots span.logged { border-color: #5f8b69; background: #78a47d; }
+.history-panel { display: grid; justify-items: center; margin: 20px auto; padding: 28px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.history-panel > .history-list { width: 100%; }
+.history-status { color: var(--muted); }
+.history-list h2 { display: flex; justify-content: space-between; align-items: center; margin: 0; font: 700 17px 'Manrope', sans-serif; }
+.history-list h2 span { color: var(--muted); font: 500 11px 'DM Sans', sans-serif; }
+.history-entry { padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: #fafbf9; }
+.history-entry p { color: #66736a !important; font-size: 12px; line-height: 1.7; }
+.history-actions { display: flex; gap: 16px; margin-top: 12px; }
+.history-edit, .history-delete { padding: 0; border: 0; background: transparent; color: var(--green); font-size: 11px; font-weight: 700; text-decoration: none; }
+.history-delete { color: #a54e45; }
+.history-error { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 12px 0; padding: 12px 15px; border: 1px solid #f0d0cb; border-radius: 6px; background: #fff7f5; color: #9e443a; font-size: 12px; }
+.history-error button { border: 0; background: none; color: inherit; font-weight: 700; }
+.achievement-panel { justify-items: stretch; }
+.achievement-panel > h2 { margin: 0; font: 700 18px 'Manrope', sans-serif; }
+.achievement-panel > .heading-subtitle { margin: 5px 0 18px; }
+.achievement-list { display: grid; gap: 10px; }
+.achievement-card { display: flex; align-items: center; gap: 13px; padding: 14px; border: 1px solid var(--line); border-radius: 7px; background: #fafbf9; }
+.achievement-card > span { font-size: 23px; }
+.achievement-card strong { font: 700 13px 'Manrope', sans-serif; }
+.achievement-card p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+.achievement-card small { margin-left: auto; color: var(--muted); font-size: 10px; white-space: nowrap; }
+.achievement-card.unlocked { border-color: #cfe0d0; background: #f2f8f1; }
+.achievement-card.unlocked small { color: var(--green); font-weight: 700; }
 .log-page .bg-white { border-radius: 8px; box-shadow: 0 8px 28px rgba(43, 66, 49, .04); }
 .suggestions-content { max-width: 850px; margin: 0 auto; }
 .suggestions-intro { margin: 0 0 17px; }
@@ -178,6 +204,8 @@ button { cursor: pointer; }
   .secondary-action { width: 100%; }
   .small-panel { min-height: auto; }
   .log-heading { flex-direction: column; gap: 4px; }
+  .log-date { justify-content: space-between; }
+  .history-panel { padding: 18px 14px; }
   .log-content { margin-top: 4px; }
   .log-content .space-x-4 { gap: 5px; }
   .log-content .space-x-4 > div { padding: 7px 9px; font-size: 10px; }

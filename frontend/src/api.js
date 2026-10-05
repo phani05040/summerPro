@@ -18,7 +18,8 @@ export const api = {
   logHabit: (data) => apiClient.post('/api/habits/log', data),
   
   // Retrieves 30-day history
-  getHistory: (userId) => apiClient.get(`/api/habits/history?user_id=${userId}`),
+  getHistory: (userId, limit = 30) => apiClient.get('/api/habits/history', { params: { user_id: userId, limit } }),
+  deleteLog: (userId, date) => apiClient.delete(`/api/habits/log/${date}`, { params: { user_id: userId } }),
   
   // Sends data to Groq AI for suggestions
   generateSuggestions: (data) => apiClient.post('/api/suggestions/generate', data),

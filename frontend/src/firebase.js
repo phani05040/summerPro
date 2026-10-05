@@ -1,17 +1,28 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Firebase configuration using Vite environment variables
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN;
+const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  apiKey,
+  authDomain,
+  projectId,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app = null;
+if (apiKey && authDomain && projectId) {
+  app = initializeApp(firebaseConfig);
+}
 
-// Export Authentication and Firestore database instances
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const auth = app ? getAuth(app) : null;
+export const db = app ? getFirestore(app) : null;
+export { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut };

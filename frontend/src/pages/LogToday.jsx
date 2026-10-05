@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { api } from '../api'; // Imports the Axios calls we made earlier
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { api } from '../api';
 
-const LogToday = () => {
+const LogToday = ({ user }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  
-  // State to hold all form data
+
+  const activeUserId = user?.uid || 'demo_user_123';
+
   const [formData, setFormData] = useState({
-    user_id: 'demo_user_123', // Demo ID
-    date: new Date().toISOString().split('T')[0],
+    user_id: activeUserId,
+    date: searchParams.get('date') || new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
     transport_mode: 'Car Petrol',
     distance: 0,
     passengers: 1,
@@ -21,32 +23,62 @@ const LogToday = () => {
     ac: false
   });
 
+  useEffect(() => {
+    setFormData((current) => ({ ...current, user_id: activeUserId }));
+  }, [activeUserId]);
+
+  useEffect(() => {
+    const date = searchParams.get('date');
+    if (!date) return;
+    let active = true;
+    api.getHistory(activeUserId, 365).then(({ data }) => {
+      const existing = data.find((entry) => entry.date === date);
+      if (active && existing) setFormData((current) => ({ ...current, ...existing, user_id: activeUserId }));
+    }).catch((error) => console.error('Could not load saved log:', error));
+    return () => { active = false; };
+  }, [activeUserId, searchParams]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
+    const numericFields = ['distance', 'passengers', 'electricity_kwh'];
+
+    setFormData((current) => ({
+      ...current,
+      [name]: type === 'checkbox' ? checked : numericFields.includes(name) ? Number(value) : value
+    }));
   };
 
   // Final submission to the Flask backend
   const handleSubmit = async () => {
+    if (!formData.date) return;
     setLoading(true);
     try {
+      const payload = {
+        ...formData,
+        user_id: activeUserId,
+        distance: Number(formData.distance) || 0,
+        passengers: Number(formData.passengers) || 1,
+        electricity_kwh: Number(formData.electricity_kwh) || 0,
+        food_waste: Boolean(formData.food_waste),
+        heating: Boolean(formData.heating),
+        ac: Boolean(formData.ac),
+      };
+
       // 1. Calculate the footprint via Flask
-      const calcResponse = await api.calculateFootprint(formData);
+      const calcResponse = await api.calculateFootprint(payload);
       const totalEmissions = calcResponse.data.total;
 
       // 2. Log the habit to Firebase (via Flask)
-      await api.logHabit({ ...formData, total_emissions: totalEmissions });
+      await api.logHabit({ ...payload, total_emissions: totalEmissions, travel_emissions: calcResponse.data.travel_emissions, food_emissions: calcResponse.data.food_emissions, energy_emissions: calcResponse.data.energy_emissions });
 
       // 3. Move to Suggestions automatically
-      navigate('/suggestions');
+      navigate(`/suggestions?date=${encodeURIComponent(payload.date)}`);
     } catch (error) {
       console.error("Error logging habits:", error);
-      alert("Failed to connect to the backend. Is your Flask server running?");
+      alert(error.response?.data?.error || "Could not save your daily log. Check that the EcoTrack backend is running.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -56,7 +88,7 @@ const LogToday = () => {
         <button className="back-link" onClick={() => navigate('/')}>← Overview</button>
       </div>
       <div className="log-content">
-        <div className="log-date">{formData.date}</div>
+        <div className="log-date"><label htmlFor="log-date">Log date</label><input id="log-date" name="date" type="date" value={formData.date} onChange={handleChange} required /></div>
 
         {/* 3-Step Progress Tracker */}
         <div className="flex justify-center mb-8 space-x-4 text-sm font-medium">
@@ -97,6 +129,11 @@ const LogToday = () => {
               <div>
                 <label htmlFor="distance" className="block text-sm font-medium text-gray-700 mb-2">Distance Traveled (km)</label>
                 <input id="distance" type="number" name="distance" value={formData.distance} onChange={handleChange} min="0" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500" />
+              </div>
+
+              <div>
+                <label htmlFor="passengers" className="block text-sm font-medium text-gray-700 mb-2">Passengers</label>
+                <input id="passengers" type="number" name="passengers" value={formData.passengers} onChange={handleChange} min="1" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500" />
               </div>
 
               <div className="bg-green-50 text-green-700 p-4 rounded-lg text-sm font-medium">
@@ -148,6 +185,11 @@ const LogToday = () => {
               <div>
                 <label htmlFor="electricity_kwh" className="block text-sm font-medium text-gray-700 mb-2">Electricity Used (kWh)</label>
                 <input id="electricity_kwh" type="number" name="electricity_kwh" value={formData.electricity_kwh} onChange={handleChange} min="0" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-green-500" />
+              </div>
+
+              <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <input id="heating" type="checkbox" name="heating" checked={formData.heating} onChange={handleChange} className="w-5 h-5 text-green-600 rounded" />
+                <label htmlFor="heating" className="text-sm font-medium text-gray-700">Heated the home today</label>
               </div>
 
               <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg border border-gray-200">

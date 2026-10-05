@@ -1,8 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../api';
 
-const Dashboard = () => {
+const Dashboard = ({ user }) => {
   const navigate = useNavigate();
+  const userId = user?.uid || 'demo_user_123';
+  const [todayEntry, setTodayEntry] = useState(null);
+  const [weekDates, setWeekDates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const todayKey = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  useEffect(() => {
+    let active = true;
+    api.getHistory(userId, 365).then(({ data }) => {
+      if (!active) return;
+      setTodayEntry(data.find((entry) => entry.date === todayKey) || null);
+      const start = new Date();
+      start.setDate(start.getDate() - 6);
+      const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(start); d.setDate(start.getDate() + i); return d.toLocaleDateString('en-CA'); });
+      setWeekDates(dates.map((date) => data.some((entry) => entry.date === date)));
+    }).catch((error) => console.error('Dashboard activity fetch failed:', error)).finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [userId, todayKey]);
+  const total = Number(todayEntry?.total_emissions || 0);
+  const categories = [
+    ['Travel', Number(todayEntry?.travel_emissions || 0), 'travel-bar', 'travel-icon', '↗'],
+    ['Food', Number(todayEntry?.food_emissions || 0), 'food-bar', 'food-icon', '◒'],
+    ['Home energy', Number(todayEntry?.energy_emissions || 0), 'energy-bar', 'energy-icon', 'ϟ'],
+  ];
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
   });
@@ -12,7 +36,7 @@ const Dashboard = () => {
       <div className="page-heading">
         <div>
           <p className="eyebrow">OVERVIEW</p>
-          <h1>Good morning, Eco User</h1>
+          <h1>Hello, {user?.displayName || 'Eco User'}</h1>
           <p className="heading-subtitle">A little progress goes a long way. Here’s your impact today.</p>
         </div>
         <div className="date-stamp"><span className="date-dot" />{today}</div>
@@ -25,11 +49,11 @@ const Dashboard = () => {
             <span className="period-tag">Today</span>
           </div>
           <div className="footprint-content">
-            <div className="footprint-number">0.0 <span>kg CO₂e</span></div>
-            <p className="footprint-note">You haven’t logged any activity yet.</p>
-            <div className="budget-track"><span /></div>
-            <div className="budget-labels"><span>0 kg used</span><span>8 kg daily budget</span></div>
-            <button className="primary-action" onClick={() => navigate('/log')}><span>+</span> Log today’s activity</button>
+            <div className="footprint-number">{loading ? '…' : total.toFixed(2)} <span>kg CO₂e</span></div>
+            <p className="footprint-note">{todayEntry ? 'Your saved footprint for today.' : 'You haven’t logged any activity today yet.'}</p>
+            <div className="budget-track"><span style={{ width: `${Math.min(total / 8 * 100, 100)}%` }} /></div>
+            <div className="budget-labels"><span>{total.toFixed(2)} kg used</span><span>8 kg daily budget</span></div>
+            <button className="primary-action" onClick={() => navigate(`/log${todayEntry ? `?date=${todayKey}` : ''}`)}><span>+</span> {todayEntry ? 'Update today’s activity' : 'Log today’s activity'}</button>
           </div>
           <div className="panel-orbit orbit-one" /><div className="panel-orbit orbit-two" />
         </div>
@@ -37,12 +61,10 @@ const Dashboard = () => {
         <div className="breakdown-panel">
           <div className="panel-heading">
             <div><span className="panel-kicker">WHERE IT COMES FROM</span><h2>Daily breakdown</h2></div>
-            <span className="breakdown-total">0.00 <small>kg</small></span>
+            <span className="breakdown-total">{total.toFixed(2)} <small>kg</small></span>
           </div>
           <div className="category-list">
-            <div className="category-row"><span className="category-icon travel-icon">↗</span><div className="category-info"><div><strong>Travel</strong><span>0.00 kg</span></div><div className="category-track"><i className="travel-bar" /></div></div></div>
-            <div className="category-row"><span className="category-icon food-icon">◒</span><div className="category-info"><div><strong>Food</strong><span>0.00 kg</span></div><div className="category-track"><i className="food-bar" /></div></div></div>
-            <div className="category-row"><span className="category-icon energy-icon">ϟ</span><div className="category-info"><div><strong>Home energy</strong><span>0.00 kg</span></div><div className="category-track"><i className="energy-bar" /></div></div></div>
+            {categories.map(([label, amount, bar, iconClass, icon]) => <div className="category-row" key={label}><span className={`category-icon ${iconClass}`}>{icon}</span><div className="category-info"><div><strong>{label}</strong><span>{amount.toFixed(2)} kg</span></div><div className="category-track"><i className={bar} style={{ width: `${total ? Math.min(amount / total * 100, 100) : 0}%` }} /></div></div></div>)}
           </div>
           <button className="text-action" onClick={() => navigate('/history')}>View your history <span>→</span></button>
         </div>
@@ -55,7 +77,7 @@ const Dashboard = () => {
 
       <section className="bottom-grid">
         <div className="small-panel"><div className="small-panel-title"><span>✦</span><h2>A greener idea</h2></div><p>Try swapping one short car trip for a walk, bike ride, or public transit journey.</p><button onClick={() => navigate('/suggestions')}>Explore suggestions <span>→</span></button></div>
-        <div className="small-panel streak-panel"><div className="small-panel-title"><span>◷</span><h2>Your tracking rhythm</h2></div><p>Build a clearer picture of your impact by logging a little each day.</p><div className="week-dots" aria-label="No days logged this week"><span /><span /><span /><span /><span /><span /><span /></div><div className="week-labels"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div></div>
+        <div className="small-panel streak-panel"><div className="small-panel-title"><span>◷</span><h2>Your tracking rhythm</h2></div><p>Build a clearer picture of your impact by logging a little each day.</p><div className="week-dots" aria-label="Tracking activity over the last seven days">{weekDates.map((logged, index) => <span key={index} className={logged ? 'logged' : ''} />)}</div><div className="week-labels"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div></div>
       </section>
     </div>
   );

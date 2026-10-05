@@ -24,26 +24,34 @@ AC_FLAT_RATE = 1.5 # kg
 
 @calculator_bp.route('/api/calculate/footprint', methods=['POST'])
 def calculate_footprint():
-    data = request.json
+    data = request.get_json(silent=True) or {}
     
     # 1. Travel Emissions
     transport_mode = data.get('transport_mode')
-    distance = float(data.get('distance', 0))
+    try:
+        distance = float(data.get('distance', 0))
+        electricity_kwh = float(data.get('electricity_kwh', 0))
+        passengers = int(data.get('passengers', 1))
+    except (TypeError, ValueError):
+        return jsonify({"error": "Distance, electricity, and passengers must be valid numbers"}), 400
     # Distance must be a non-negative number
-    if distance < 0:
-        return jsonify({"error": "Distance must be non-negative"}), 400
+    if distance < 0 or electricity_kwh < 0 or passengers < 1:
+        return jsonify({"error": "Distance and electricity must be non-negative and passengers must be at least one"}), 400
         
-    travel_emissions = TRANSPORT_COEFFICIENTS.get(transport_mode, 0) * distance
+    if transport_mode not in TRANSPORT_COEFFICIENTS:
+        return jsonify({"error": "Choose a supported transport mode"}), 400
+    travel_emissions = TRANSPORT_COEFFICIENTS[transport_mode] * distance / passengers
 
     # 2. Food Emissions
     diet_type = data.get('diet_type')
-    food_emissions = FOOD_COEFFICIENTS.get(diet_type, 0)
+    if diet_type not in FOOD_COEFFICIENTS:
+        return jsonify({"error": "Choose a supported diet type"}), 400
+    food_emissions = FOOD_COEFFICIENTS[diet_type]
     # Applies a 10% emission penalty for food waste
     if data.get('food_waste') == True:
         food_emissions *= 1.10
 
     # 3. Energy Emissions
-    electricity_kwh = float(data.get('electricity_kwh', 0))
     energy_emissions = electricity_kwh * ELECTRICITY_FACTOR
     
     if data.get('heating'):
